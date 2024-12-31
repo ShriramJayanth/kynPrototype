@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 
 interface Log {
@@ -15,7 +15,9 @@ const LogsPage: React.FC = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const response = await fetch("http://localhost:3001/moderate/logs");
+        const response = await fetch(
+          `http://172.31.14.4:3003/moderate/logs`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch logs.");
         }
@@ -70,4 +72,3 @@ const LogsPage: React.FC = () => {
 };
 
 export default LogsPage;
-

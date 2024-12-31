@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dotenv from "dotenv";
 
 const PostForm: React.FC = () => {
   const [text, setText] = useState<string>("");
@@ -11,11 +12,12 @@ const PostForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(true);
   const router = useRouter();
+  dotenv.config();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userResponse = await fetch("http://localhost:3001/auth/user", {
+        const userResponse = await fetch(`http://172.31.14.4:3003/auth/user`, { 
           credentials: "include",
         });
 
@@ -24,16 +26,17 @@ const PostForm: React.FC = () => {
         }
 
         const userData = await userResponse.json();
+        console.log(userData);
         if(userData.banned==true || userData.flags>=3){
             alert("you are banned");
             router.push("/");
         }
         setUsername(userData.name);
-        setMessage(userData.id);
+        // setMessage(userData.id);
       } catch (error) {
         console.error("Error:", error);
         setMessage("Not logged in");
-        router.push("/"); // Redirect to login page if not logged in
+        router.push("/");
       }
     };
 
@@ -45,7 +48,7 @@ const PostForm: React.FC = () => {
   };
 
   const handleTextSubmit = async () => {
-    const response = await fetch("http://localhost:3001/moderate/text", {
+    const response = await fetch(`http://172.31.14.4:3003/moderate/text`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -58,7 +61,7 @@ const PostForm: React.FC = () => {
     const formData = new FormData();
     formData.append("image", imageFile);
 
-    const response = await fetch("http://localhost:3001/moderate/image", {
+    const response = await fetch(`http://172.31.14.4:3003/moderate/image`, {
       method: "POST",
       body: formData,
     });
@@ -70,7 +73,7 @@ const PostForm: React.FC = () => {
     const formData = new FormData();
     formData.append("video", videoFile);
 
-    const response = await fetch("http://localhost:3001/moderate/video", {
+    const response = await fetch(`http://172.31.14.4:3003/moderate/video`, {
       method: "POST",
       body: formData,
     });
@@ -78,7 +81,7 @@ const PostForm: React.FC = () => {
   };
 
   const handleFlagUser = async () => {
-    const userResponse = await fetch("http://localhost:3001/moderate/flag", {
+    const userResponse = await fetch(`http://172.31.14.4:3003/moderate/flag`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: Message}),

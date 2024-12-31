@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import dotenv from "dotenv";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -10,12 +11,13 @@ const LoginPage: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  dotenv.config();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3001/auth/register",
+        `http://172.31.14.4:3003/auth/register`,
         { name, email, password },
         { withCredentials: true }
       );
@@ -32,7 +34,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3001/auth/login",
+        `http://172.31.14.4:3003/auth/login`,
         { email, password },
         { withCredentials: true }
       );
