@@ -16,7 +16,7 @@ const LogsPage: React.FC = () => {
     const fetchLogs = async () => {
       try {
         const response = await fetch(
-          `http://172.31.14.4:3003/moderate/logs`
+          `http://13.200.235.10:3003/moderate/logs`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch logs.");

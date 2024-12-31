@@ -1,140 +1,160 @@
 "use client";
 
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dotenv from "dotenv";
 
-const LoginPage: React.FC = () => {
+const PostForm: React.FC = () => {
+  const [text, setText] = useState<string>("");
+  const [Message, setMessage] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(true);
   const router = useRouter();
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  dotenv.config();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(
-        `http://172.31.14.4:3003/auth/register`,
-        { name, email, password },
-        { withCredentials: true }
-      );
-      if (response.status === 201) {
-        alert("User created successfully!");
-        setIsRegistering(false); // Switch to login form
-      }
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Registration failed.");
-    }
+  const handleInputChange = () => {
+    setIsSubmitEnabled(text.trim() !== "" || imageFile !== null || videoFile !== null);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleTextSubmit = async () => {
+    const response = await fetch(`http://13.200.235.10:3003/moderate/text`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    return response.json();
+  };
+
+  const handleImageSubmit = async () => {
+    if (!imageFile) return { flagged: false };
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const response = await fetch(`http://13.200.235.10:3003/moderate/image`, {
+      method: "POST",
+      body: formData,
+    });
+    return response.json();
+  };
+
+  const handleVideoSubmit = async () => {
+    if (!videoFile) return { flagged: false };
+    const formData = new FormData();
+    formData.append("video", videoFile);
+
+    const response = await fetch(`http://13.200.235.10:3003/moderate/video`, {
+      method: "POST",
+      body: formData,
+    });
+    return response.json();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(
-        `http://172.31.14.4:3003/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
-      if (response.status === 200) {
-        alert("Login successful!");
-        router.push("/home"); // Redirect to home page
+
+    if (text.trim() === "" && !imageFile && !videoFile) return;
+
+    let flagged = false;
+
+    if (text.trim() !== "") {
+      const textResult = await handleTextSubmit();
+      if (textResult.flagged) {
+        flagged = true;
       }
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Login failed.");
+    }
+
+
+    if (!flagged) {
+
+      if (imageFile) {
+        const imageResult = await handleImageSubmit();
+        if (imageResult.flagged) flagged = true;
+      }
+
+      if (!flagged && videoFile) {
+        const videoResult = await handleVideoSubmit();
+        if (videoResult.flagged) flagged = true;
+      }
+    }
+
+    if (flagged) {
+      alert("Your post was flagged. Please review the content.");
+      const userResponse = await fetch(`http://13.200.235.10:3003/moderate/flag`);
+    } else {
+      alert("Your post was submitted successfully!");
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-400">
-      <div className="max-w-md w-full bg-white p-8 shadow-md rounded-md">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">
-          {isRegistering ? "Register" : "Login"}
-        </h1>
+    <>
+      {/* Navbar */}
+      <nav className="bg-blue-600 p-4 shadow-md">
+        <div className="flex justify-between items-center max-w-6xl mx-auto">
+          <h1 className="text-white text-xl font-bold">Content Moderation prototype</h1>
+          <span className="text-white font-medium">
+            Welcome user
+          </span>
+        </div>
+      </nav>
 
-        {isRegistering ? (
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <label className="block font-medium text-gray-700">Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 border border-gray-300 text-gray-800 rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border border-gray-300 text-gray-800 rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border border-gray-300 text-gray-800 rounded-md"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md"
-            >
-              Register
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border border-gray-300 text-gray-800 rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border border-gray-300 text-gray-800 rounded-md"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
-            >
-              Login
-            </button>
-          </form>
-        )}
-
-        <button
-          onClick={() => setIsRegistering(!isRegistering)}
-          className="w-full mt-4 text-blue-500 hover:underline"
-        >
-          {isRegistering
-            ? "Already have an account? Login"
-            : "Don't have an account? Register"}
-        </button>
+      {/* Post Form */}
+      <div className="max-w-2xl mx-auto p-8 bg-white shadow-md rounded-md mt-10">
+        <h1 className="text-2xl font-bold text-gray-700 mb-6">Create a Post</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="text" className="block text-lg font-medium text-gray-700">
+              Post Text
+            </label>
+            <textarea
+              id="text"
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value);
+                handleInputChange();
+              }}
+              placeholder="What's on your mind?"
+              className="w-full mt-2 p-3 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            ></textarea>
+          </div>
+          <div>
+            <label htmlFor="image" className="block text-lg font-medium text-gray-700">
+              Add Image
+            </label>
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                setImageFile(e.target.files ? e.target.files[0] : null);
+                handleInputChange();
+              }}
+              className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+            />
+          </div>
+          <div>
+            <label htmlFor="video" className="block text-lg font-medium text-gray-700">
+              Add Video
+            </label>
+            <input
+              id="video"
+              type="file"
+              accept="video/*"
+              onChange={(e) => {
+                setVideoFile(e.target.files ? e.target.files[0] : null);
+                handleInputChange();
+              }}
+              className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+            />
+          </div>
+          <button
+            type="submit"
+            className={`w-full py-3 px-6 rounded-md text-white font-bold bg-blue-500 hover:bg-blue-600`}
+          >
+            Submit
+          </button>
+        </form>
       </div>
-    </div>
+    </>
   );
 };
 
-export default LoginPage;
+export default PostForm;
