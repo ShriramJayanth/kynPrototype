@@ -1,4 +1,6 @@
 
+![alt text](image.png)
+
 ## Overview
 
 This frontend service is built using Next.js and provides a user interface for interacting with the backend service. It supports fetching and displaying user activity logs and moderating text. The application is designed to work seamlessly with the backend service.
