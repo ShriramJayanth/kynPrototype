@@ -1,19 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 const PostForm: React.FC = () => {
   const [text, setText] = useState<string>("");
-  const [Message, setMessage] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(true);
-  const router = useRouter();
 
-  const handleInputChange = () => {
-    setIsSubmitEnabled(text.trim() !== "" || imageFile !== null || videoFile !== null);
-  };
+
 
   const handleTextSubmit = async () => {
     const response = await fetch(`http://13.200.235.10:3003/moderate/text`, {
@@ -109,7 +103,6 @@ const PostForm: React.FC = () => {
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
-                handleInputChange();
               }}
               placeholder="What's on your mind?"
               className="w-full mt-2 p-3 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -125,7 +118,6 @@ const PostForm: React.FC = () => {
               accept="image/*"
               onChange={(e) => {
                 setImageFile(e.target.files ? e.target.files[0] : null);
-                handleInputChange();
               }}
               className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
             />
@@ -140,7 +132,6 @@ const PostForm: React.FC = () => {
               accept="video/*"
               onChange={(e) => {
                 setVideoFile(e.target.files ? e.target.files[0] : null);
-                handleInputChange();
               }}
               className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
             />
