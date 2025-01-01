@@ -10,7 +10,7 @@ This frontend service is built using Next.js and provides a user interface for i
 
 ## Prototype
 
-To play with it: http://52.66.251.56:3000/?
+To play with it: <http://52.66.251.56:3000/?>
 
 if you find any significant errors report to sriram6132@gmail.com
 
