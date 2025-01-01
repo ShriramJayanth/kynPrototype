@@ -28,6 +28,7 @@ if you find any significant errors report to sriram6132@gmail.com
 
 1. Node.js (v18 or later)
 2. npm or yarn (for dependency management)
+3. Backend Service: This frontend requires the backend service to be running. Follow this link https://github.com/ShriramJayanth/kynBackend for backend setup instructions.
 
 ---
 
@@ -138,5 +139,5 @@ if you find any significant errors report to sriram6132@gmail.com
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is yet to be licensed.
 
